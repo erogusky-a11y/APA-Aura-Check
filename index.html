@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aura Check: APA Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEE9FF; --ink:#1D1838; --muted:#5B5580; --card:#FFFFFF; --line:#CFC6F5;
+  --pink:#E8256F; --blue:#3047FF; --lemon:#F4FF5E; --on-lemon:#1D1838;
+  --good:#0E8A55; --bad:#D3203F; --paper:#FFFFFF; --paper-ink:#1A1A1A;
+  --shadow:6px 6px 0 var(--ink);
+  --display:"Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --serif:"Times New Roman", Times, Georgia, serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17132B; --ink:#F2EEFF; --muted:#ABA4D2; --card:#241E42; --line:#3D3566;
+    --pink:#FF5C9E; --blue:#8592FF; --good:#3DD68C; --bad:#FF6B81;
+    --shadow:6px 6px 0 #000;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17132B; --ink:#F2EEFF; --muted:#ABA4D2; --card:#241E42; --line:#3D3566;
+  --pink:#FF5C9E; --blue:#8592FF; --good:#3DD68C; --bad:#FF6B81;
+  --shadow:6px 6px 0 #000;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+  background-image:radial-gradient(var(--line) 1.2px, transparent 1.2px);background-size:22px 22px;}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+/* HUD */
+.hud{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--ink);}
+.hud-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.rounds{display:flex;gap:6px}
+.rd{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;background:var(--card)}
+.rd.on{background:var(--lemon);color:var(--on-lemon)}
+.rd.done{background:var(--ink);color:var(--bg)}
+.aura{margin-left:auto;font-family:var(--display);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.aura small{font-size:13px;font-weight:600;color:var(--muted);margin-left:4px}
+.combo{font-family:var(--display);font-weight:800;font-size:14px;padding:3px 10px;border-radius:99px;background:var(--pink);color:#fff;opacity:0;transition:opacity .2s}
+.combo.show{opacity:1}
+.icon-btn{border:2px solid var(--ink);background:var(--card);border-radius:10px;width:40px;height:40px;display:grid;place-items:center;font-size:18px}
+
+main{max-width:760px;margin:0 auto;padding:24px 16px 60px}
+
+/* shared pieces */
+.btn{font-family:var(--display);font-weight:800;font-size:18px;border:2.5px solid var(--ink);border-radius:14px;padding:12px 22px;background:var(--lemon);color:var(--on-lemon);box-shadow:4px 4px 0 var(--ink);transition:transform .08s, box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.alt{background:var(--card);color:var(--ink)}
+.btn.pink{background:var(--pink);color:#fff}
+.btn.blue{background:var(--blue);color:#fff}
+.btn:disabled{opacity:.45;pointer-events:none}
+.panel{background:var(--card);border:2.5px solid var(--ink);border-radius:20px;box-shadow:var(--shadow);padding:24px}
+h1,h2,h3{font-family:var(--display);line-height:1.05;margin:0}
+.kicker{font-family:var(--display);font-weight:600;color:var(--muted);font-size:16px;margin:0 0 6px}
+.cite{font-family:var(--serif);font-size:19px;line-height:1.55;color:var(--paper-ink)}
+.cite-box{background:var(--paper);border:2px solid var(--ink);border-radius:12px;padding:18px 20px 18px 20px}
+.cite-box .cite{padding-left:1.6em;text-indent:-1.6em}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* title screen */
+.title-wrap{text-align:center;padding-top:10px}
+.mega{font-size:clamp(56px,15vw,124px);font-weight:800;letter-spacing:-.04em;line-height:.86}
+.mega .l1{display:block;color:var(--ink)}
+.mega .l2{display:inline-block;background:var(--pink);color:#fff;padding:2px 18px 10px;border:3px solid var(--ink);border-radius:18px;transform:rotate(-3deg);box-shadow:var(--shadow);margin-top:10px}
+.sub{font-size:19px;max-width:30em;margin:30px auto 8px}
+.stickers{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:22px 0 30px}
+.sticker{border:2px solid var(--ink);border-radius:99px;padding:6px 14px;background:var(--card);font-weight:700;font-size:15px}
+.sticker:nth-child(2){transform:rotate(2deg);background:var(--lemon);color:var(--on-lemon)}
+.sticker:nth-child(3){transform:rotate(-2deg)}
+.sticker:nth-child(4){transform:rotate(1.5deg);background:var(--blue);color:#fff}
+
+/* briefing */
+.brief h2{font-size:clamp(34px,7vw,52px);letter-spacing:-.02em;margin-bottom:6px}
+.brief .lede{color:var(--muted);margin:0 0 18px}
+.rules{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:10px}
+.rules li{border-left:5px solid var(--pink);padding:4px 0 4px 14px}
+.rules b{font-family:var(--display)}
+.anatomy{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 20px}
+.anatomy span{border:2px solid var(--ink);border-radius:8px;padding:4px 10px;font-weight:700;font-size:15px;background:var(--bg)}
+
+/* round 1 swipe */
+.deck{position:relative;min-height:260px;margin:10px 0 18px;touch-action:pan-y}
+.swipe{position:relative;background:var(--card);border:2.5px solid var(--ink);border-radius:22px;box-shadow:var(--shadow);padding:22px;user-select:none;touch-action:pan-y;cursor:grab}
+.swipe.dragging{cursor:grabbing;transition:none}
+.swipe .tag{position:absolute;top:16px;font-family:var(--display);font-weight:800;font-size:28px;padding:2px 12px;border:3px solid;border-radius:10px;opacity:0;transform:rotate(-8deg)}
+.swipe .tag.v{right:16px;color:var(--good);border-color:var(--good);transform:rotate(8deg)}
+.swipe .tag.s{left:16px;color:var(--bad);border-color:var(--bad)}
+.counter{font-family:var(--display);font-weight:600;color:var(--muted);margin-bottom:12px}
+.choices{display:flex;gap:14px;justify-content:center}
+.choices .btn{min-width:140px}
+.verdict{margin-top:16px;border:2.5px solid var(--ink);border-radius:16px;padding:16px 18px;background:var(--card)}
+.verdict h3{font-size:24px;margin-bottom:6px}
+.verdict.good h3{color:var(--good)}
+.verdict.bad h3{color:var(--bad)}
+.verdict p{margin:0 0 12px}
+.fly-left{transition:transform .35s ease-in, opacity .35s;transform:translateX(-140%) rotate(-18deg)!important;opacity:0}
+.fly-right{transition:transform .35s ease-in, opacity .35s;transform:translateX(140%) rotate(18deg)!important;opacity:0}
+
+/* round 2 build */
+.slots{min-height:110px;background:var(--paper);border:2px dashed var(--ink);border-radius:14px;padding:16px 18px;margin:10px 0 16px}
+.slots .cite{padding-left:1.6em;text-indent:-1.6em}
+.slots .ph{color:#8a85a6;font-family:var(--body);font-size:15px}
+.slots .pc{background:#FFF7A8;border-radius:4px;padding:0 2px;animation:pop .3s}
+.tiles{display:flex;flex-wrap:wrap;gap:10px}
+.tile{font-family:var(--serif);font-size:17px;text-align:left;background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:10px 14px;box-shadow:3px 3px 0 var(--ink);max-width:100%;overflow-wrap:anywhere}
+.tile:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.tile.used{visibility:hidden}
+.order-hint{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.order-hint span{font-size:14px;font-weight:700;padding:3px 10px;border-radius:99px;border:2px solid var(--line);color:var(--muted)}
+.order-hint span.now{border-color:var(--ink);background:var(--lemon);color:var(--on-lemon)}
+.order-hint span.done{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* round 3 page */
+.page-wrap{overflow-x:auto;margin:10px 0 16px}
+.page{position:relative;background:var(--paper);color:var(--paper-ink);border:2px solid var(--ink);box-shadow:var(--shadow);border-radius:4px;padding:56px 48px 60px;min-width:520px;font-family:var(--serif);font-size:16px;line-height:2}
+.hot{cursor:pointer;border-radius:4px;outline:2px dashed transparent;transition:outline-color .15s, background .15s}
+.hot:hover{outline-color:#9b93d6}
+.hot.found{background:#FFE1EC;outline:2px solid var(--pink)}
+.hot.cleared{background:#E2F7EC;outline:2px solid #0E8A55}
+.p-num{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);padding:0 8px}
+.p-head{margin:0 0 4px;font-weight:400;padding:0 6px}
+.entry{display:block;padding-left:.5in;text-indent:-.5in;margin:0}
+.entry.bad-indent{padding-left:0;text-indent:.5in}
+.found-count{font-family:var(--display);font-weight:800;font-size:20px}
+.note{margin-top:12px;border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;background:var(--card);min-height:60px}
+.note.good{border-color:var(--good)}
+.note.bad{border-color:var(--bad)}
+
+/* round 4 quiz */
+.timer{height:14px;border:2px solid var(--ink);border-radius:99px;overflow:hidden;background:var(--card);margin:6px 0 18px}
+.timer i{display:block;height:100%;background:var(--blue);width:100%}
+.timer.low i{background:var(--pink)}
+.q{font-size:21px;font-weight:700;margin:0 0 16px}
+.ctx{font-family:var(--serif);font-size:18px;background:var(--paper);color:var(--paper-ink);border:2px solid var(--ink);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;font-family:var(--serif);font-size:18px;background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:12px 16px;box-shadow:3px 3px 0 var(--ink)}
+.opt .k{font-family:var(--display);font-weight:800;font-size:14px;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--bg);margin-right:10px;vertical-align:2px}
+.opt.right{background:#D8F5E6;color:#0b3d27;border-color:#0E8A55}
+.opt.wrong{background:#FFDDE3;color:#5c0e1c;border-color:#D3203F}
+.opt:disabled{cursor:default}
+
+/* end */
+.end h2{font-size:clamp(40px,9vw,72px);letter-spacing:-.03em}
+.rank{display:inline-block;margin:14px 0 4px;background:var(--lemon);color:var(--on-lemon);border:2.5px solid var(--ink);border-radius:12px;padding:6px 14px;font-family:var(--display);font-weight:800;font-size:22px;transform:rotate(-1.5deg)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.stat{border:2px solid var(--ink);border-radius:14px;padding:12px;background:var(--bg);text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--muted)}
+label{font-weight:700;display:block;margin-bottom:6px}
+input[type=text]{width:100%;font:inherit;font-size:18px;padding:12px 14px;border:2.5px solid var(--ink);border-radius:12px;background:var(--paper);color:var(--paper-ink)}
+#certCanvas{width:100%;height:auto;border:2.5px solid var(--ink);border-radius:12px;margin:16px 0;display:block}
+textarea{width:100%;font-family:var(--body);font-size:15px;border:2px solid var(--ink);border-radius:12px;padding:10px;background:var(--paper);color:var(--paper-ink);resize:vertical}
+.msg{min-height:1.5em;font-weight:700;margin-top:8px}
+
+/* lesson */
+.lprog{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.lbar{flex:1;height:10px;border:2px solid var(--ink);border-radius:99px;overflow:hidden;background:var(--card)}
+.lbar i{display:block;height:100%;background:var(--pink);transition:width .3s}
+.lpart{font-family:var(--display);font-weight:600;color:var(--muted);font-size:15px;white-space:nowrap}
+.slide h2{font-size:clamp(30px,6vw,46px);letter-spacing:-.02em;margin-bottom:14px}
+.slide p{margin:0 0 14px}
+.lnav{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px}
+.chip{border:2px solid var(--ink);border-radius:99px;padding:4px 12px;font-weight:700;font-size:15px;background:var(--bg)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.mini{border:2px solid var(--ink);border-radius:14px;padding:14px;background:var(--bg)}
+.mini b{font-family:var(--display);font-size:18px;display:block;margin-bottom:4px}
+.aside{border-left:5px solid var(--blue);padding:4px 0 4px 14px;color:var(--muted)}
+.sort-item{border:2.5px solid var(--ink);border-radius:14px;padding:12px 14px;background:var(--card);margin-bottom:10px}
+.sort-item p{margin:0 0 10px}
+.sort-item .btn{font-size:15px;padding:8px 14px;box-shadow:3px 3px 0 var(--ink)}
+.sort-item .fb{margin:10px 0 0;font-weight:700}
+.sort-item.ok{border-color:var(--good)}
+.sort-item.no{border-color:var(--bad)}
+.btn.picked:disabled{opacity:1}
+.lit,mark{background:#FFE36B!important;color:#1A1A1A!important;border-radius:4px;outline:2px solid var(--pink)}
+.tagbtn{background:none;border:0;padding:0 2px;font:inherit;color:inherit;text-decoration:underline wavy var(--pink);text-underline-offset:5px;cursor:pointer}
+.explore{display:grid;grid-template-columns:minmax(0,340px) 1fr;gap:22px;align-items:start}
+.mock{position:relative;background:var(--paper);border:2px solid var(--ink);border-radius:4px;aspect-ratio:8.5/11;width:100%;max-width:340px;padding:11.76%;box-shadow:var(--shadow);overflow:hidden;transition:background .2s}
+.mock .pnum{position:absolute;top:5%;right:11.76%;font-family:var(--serif);font-size:11px;color:var(--paper-ink);padding:0 3px;border-radius:3px}
+.mock-in{display:flex;flex-direction:column;gap:9px;height:100%;transition:background .2s}
+.ln{display:block;height:4px;background:#B9B3D6;border-radius:3px;flex:none;transition:background .2s}
+.ln.first{margin-left:9%}
+.mock[data-z=margin]{background:repeating-linear-gradient(45deg,#FFD1E2 0 8px,#FFFFFF 8px 16px)}
+.mock[data-z=margin] .mock-in{background:#FFFFFF;outline:2px dashed var(--pink)}
+.mock[data-z=pnum] .pnum{background:#FFE36B;outline:2px solid var(--pink)}
+.mock[data-z=spacing] .ln{background:var(--pink)}
+.mock[data-z=indent] .ln.first{background:var(--pink)}
+.mock[data-z=font] .ln{background:#3047FF}
+.mock[data-z=align] .mock-in{box-shadow:-4px 0 0 var(--pink)}
+.tp .mock-in{align-items:center;text-align:center;gap:0;font-family:var(--serif);font-size:11.5px;line-height:2;color:var(--paper-ink)}
+.tp .spacer{height:15%;flex:none}
+.tp .blank{height:2em;flex:none}
+.hot2{cursor:pointer;padding:0 3px;border-radius:3px;outline:2px dashed transparent}
+.hot2:hover{outline-color:#9b93d6}
+.zbtns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.zbtn{border:2px solid var(--ink);border-radius:10px;padding:6px 12px;background:var(--card);font-weight:700;font-size:15px}
+.zbtn.on{background:var(--lemon);color:var(--on-lemon)}
+.zbtn.seen:not(.on)::after{content:" ✓"}
+.head-demo p{margin:0;line-height:2;font-family:var(--serif);font-size:17px;color:var(--paper-ink)}
+.h1d{text-align:center;font-weight:700}
+.h2d{font-weight:700}
+.h3d{font-weight:700;font-style:italic}
+.pd{text-indent:.5in}
+.part{cursor:pointer;border-bottom:3px solid;border-radius:2px}
+.part[data-p=author]{border-color:#E8256F}
+.part[data-p=date]{border-color:#3047FF}
+.part[data-p=title]{border-color:#0E8A55}
+.part[data-p=source]{border-color:#C98A00}
+.part[data-p=doi]{border-color:#7A3FD1}
+.part.active{background:#FFE36B}
+.tblwrap{overflow-x:auto;margin-bottom:14px}
+.tbl{width:100%;border-collapse:collapse;font-size:16px;min-width:460px}
+.tbl th,.tbl td{border:2px solid var(--ink);padding:8px 10px;text-align:left;vertical-align:top}
+.tbl th{background:var(--bg);font-family:var(--display)}
+.tbl td.c{font-family:var(--serif);background:var(--paper);color:var(--paper-ink)}
+.ref-demo{background:var(--paper);color:var(--paper-ink);border:2px solid var(--ink);border-radius:6px;padding:20px 22px;font-family:var(--serif);font-size:15px;line-height:1.25;margin-bottom:14px}
+.ref-demo.dbl{line-height:2}
+.ref-h{text-align:center;font-weight:700;margin:0 0 6px!important}
+.ref-e{margin:0 0 8px!important}
+.ref-demo.dbl .ref-e{margin:0!important}
+.ref-demo.hang .ref-e{padding-left:.5in;text-indent:-.5in}
+.tpl{font-family:var(--serif);font-size:18px;background:var(--paper);color:var(--paper-ink);border:2px dashed var(--ink);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+@media (max-width:620px){.explore,.grid2{grid-template-columns:1fr}.mock{margin:0 auto}}
+
+/* fx */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+.popup{position:fixed;z-index:21;pointer-events:none;font-family:var(--display);font-weight:800;font-size:22px;color:var(--pink);text-shadow:2px 2px 0 var(--card);animation:floatUp 1s forwards}
+.popup.neg{color:var(--bad)}
+@keyframes floatUp{0%{opacity:0;transform:translateY(8px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-46px)}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (max-width:560px){
+  main{padding:18px 12px 50px}
+  .panel{padding:18px}
+  .cite{font-size:17px}
+  .choices .btn{min-width:0;flex:1}
+  .stats{grid-template-columns:1fr 1fr 1fr}
+  .stat b{font-size:22px}
+  .aura{font-size:19px}
+  .rd{width:26px;height:26px;font-size:13px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="hud">
+  <div class="hud-in">
+    <div class="rounds" aria-label="Round progress">
+      <div class="rd" id="rdL" title="Lesson">L</div><div class="rd" id="rd1">1</div><div class="rd" id="rd2">2</div><div class="rd" id="rd3">3</div><div class="rd" id="rd4">4</div>
+    </div>
+    <span class="combo" id="combo">x2 streak</span>
+    <div class="aura" aria-live="polite"><span id="auraVal">0</span><small>aura</small></div>
+    <button class="icon-btn" id="muteBtn" aria-label="Mute sound" title="Sound on/off">🔊</button>
+  </div>
+</header>
+<main id="stage"></main>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="sr" aria-live="assertive" id="live"></div>
+
+<script>
+/* ===================== SCORE FORM SETUP =====================
+   Paste your Google Form's pre-filled link between the quotes below.
+   When making the pre-filled link, type these placeholders into the fields:
+   NAME, AURA, ACCURACY, STREAK, RANK, LESSON, CODE
+   Leave it empty to hide the "Send score" button. */
+const FORM_PREFILL_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeu6TgnyCMUF3v3BaWbKwSMR6v5uFls6Xn_33b-muFwNu5iBQ/viewform?usp=pp_url&entry.676103810=Name&entry.20527842=Aura&entry.1650827382=Accuracy&entry.1344980306=Best+streak&entry.1840662580=Rank&entry.1359463616=Lesson&entry.646984047=Completion+code';
+
+/* ===================== CONTENT (real published sources, APA 7) ===================== */
+const ROUND1 = [
+  {html:'Mueller, P. A., &amp; Oppenheimer, D. M. (2014). The pen is mightier than the keyboard: Advantages of longhand over laptop note taking. <i>Psychological Science, 25</i>(6), 1159–1168. https://doi.org/10.1177/0956797614524581',
+   valid:true, why:'Two authors joined with &amp;, article title in sentence case, journal name and volume number in italics, issue number in parentheses, and the DOI written as a full link.'},
+  {html:'Sparrow, B., Liu, J., &amp; Wegner, D. M. (2011). Google effects on memory: Cognitive consequences of having information at our fingertips. <i>Science, 333</i>(6043), 776–778. https://doi.org/10.1126/science.1207745',
+   valid:true, why:'Three authors listed by last name and initials, with &amp; before the last one. Everything lines up: date, sentence-case title, italic journal and volume, pages, DOI.'},
+  {html:'Haidt, J. (2024). <i>The anxious generation: How the great rewiring of childhood is causing an epidemic of mental illness</i>. Penguin Press.',
+   valid:true, why:'Book format. The whole book title is italic and in sentence case (the word after the colon gets a capital). Then just the publisher. APA 7 doesn’t want a city.'},
+  {html:'American Psychological Association. (2020). <i>Publication manual of the American Psychological Association</i> (7th ed.). https://doi.org/10.1037/0000165-000',
+   valid:true, why:'A group can be the author. When the author and the publisher are the same, you skip the publisher. The edition goes in parentheses right after the title.'},
+  {html:'Carr, N. (2008, July/August). Is Google making us stupid? <i>The Atlantic, 302</i>(1), 56–63.',
+   valid:true, why:'Magazine article: the date includes the month, and the magazine name plus volume are italic. The article title keeps its own question mark, so no extra period.'},
+  {html:'Carr, N. (2010). <i>The shallows: What the Internet is doing to our brains</i>. New York, NY: W. W. Norton &amp; Company.',
+   valid:false, why:'“New York, NY:” has to go. APA 7 dropped publisher locations, so it ends with just W. W. Norton &amp; Company.'},
+  {html:'Roediger, H. L., III, &amp; Karpicke, J. D. (2006). Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention. <i>Psychological Science, 17</i>(3), 249–255. https://doi.org/10.1111/j.1467-9280.2006.01693.x',
+   valid:false, why:'The article title is in Title Case. APA wants sentence case for article titles: Test-enhanced learning: Taking memory tests improves long-term retention.'},
+  {html:'Ophir, E., Nass, C., and Wagner, A. D. (2009). Cognitive control in media multitaskers. <i>Proceedings of the National Academy of Sciences, 106</i>(37), 15583–15587. https://doi.org/10.1073/pnas.0903620106',
+   valid:false, why:'In a reference entry, the last author gets an ampersand: Nass, C., &amp; Wagner, A. D. Save “and” for sentences you write yourself.'},
+  {html:'Wolf, Maryanne. <i>Reader, Come Home: The Reading Brain in a Digital World</i>. Harper, 2018.',
+   valid:false, why:'That’s MLA wearing an APA costume. APA uses initials (Wolf, M.), puts the year in parentheses right after the author, and uses sentence case for the title.'},
+  {html:'Mark, G. (2023). Attention span: A groundbreaking way to restore balance, happiness and productivity. Hanover Square Press.',
+   valid:false, why:'Book titles are italic in APA. Without italics, the title looks like an article or chapter.'}
+];
+
+const ROUND2 = [
+  {label:'Journal article',
+   parts:[
+    {t:'Roediger, H. L., III, &amp; Karpicke, J. D.', k:'Author'},
+    {t:'(2006).', k:'Date'},
+    {t:'Test-enhanced learning: Taking memory tests improves long-term retention.', k:'Title'},
+    {t:'<i>Psychological Science, 17</i>(3), 249–255.', k:'Source'},
+    {t:'https://doi.org/10.1111/j.1467-9280.2006.01693.x', k:'DOI'}],
+   decoys:[{t:'Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention.', why:'Title Case is the trap. Article titles use sentence case.'}]},
+  {label:'Book',
+   parts:[
+    {t:'Wolf, M.', k:'Author'},
+    {t:'(2018).', k:'Date'},
+    {t:'<i>Reader, come home: The reading brain in a digital world</i>.', k:'Title'},
+    {t:'Harper.', k:'Publisher'}],
+   decoys:[{t:'New York, NY:', why:'APA 7 doesn’t include the publisher’s city.'}]},
+  {label:'Journal article, three authors',
+   parts:[
+    {t:'Ophir, E., Nass, C., &amp; Wagner, A. D.', k:'Author'},
+    {t:'(2009).', k:'Date'},
+    {t:'Cognitive control in media multitaskers.', k:'Title'},
+    {t:'<i>Proceedings of the National Academy of Sciences, 106</i>(37), 15583–15587.', k:'Source'},
+    {t:'https://doi.org/10.1073/pnas.0903620106', k:'DOI'}],
+   decoys:[{t:'doi:10.1073/pnas.0903620106', why:'That’s the old DOI style. APA 7 writes DOIs as full https://doi.org/ links.'}]}
+];
+
+const ROUND3_GLITCHES = 5;
+
+const ROUND4 = [
+  {q:'Which parenthetical citation is formatted correctly?', ctx:'Students who took notes by hand did better on conceptual questions than students who typed ___.',
+   opts:['(Mueller &amp; Oppenheimer, 2014)','(Mueller and Oppenheimer, 2014)','(Mueller &amp; Oppenheimer 2014)','(Mueller, Oppenheimer, 2014)'], a:0,
+   why:'Inside parentheses, two authors get an &amp;, and a comma separates the names from the year.'},
+  {q:'Same source, but now the authors are part of your sentence. Pick the right version.', ctx:'___ found that laptop note takers tended to copy lectures word for word.',
+   opts:['Mueller &amp; Oppenheimer (2014)','Mueller and Oppenheimer (2014)','(Mueller and Oppenheimer) 2014','Mueller and Oppenheimer, 2014,'], a:1,
+   why:'In a narrative citation the names are part of your sentence, so you write “and.” The year follows in parentheses.'},
+  {q:'Sparrow, Liu, and Wegner (2011) have three authors. How do you cite them the first time?', ctx:'People were less likely to remember facts they expected to be able to look up later ___.',
+   opts:['(Sparrow, Liu, &amp; Wegner, 2011)','(Sparrow et. al., 2011)','(Sparrow et al., 2011)','(Sparrow et al. 2011)'], a:2,
+   why:'APA 7 uses “et al.” for three or more authors from the very first citation. Only “al.” gets a period, and the comma before the year stays.'},
+  {q:'You quote Haidt word for word instead of paraphrasing. What does your citation need now?', ctx:'',
+   opts:['Nothing extra, (Haidt, 2024) is enough','A page number, in the form (Haidt, 2024, p. #)','The full book title','The publisher’s name'], a:1,
+   why:'Direct quotes need a page number (or a paragraph number for sources with no pages). Paraphrases don’t require one.'},
+  {q:'How do you cite the APA manual in your text?', ctx:'',
+   opts:['(APA Manual, 2020)','(Publication manual, 2020)','(American Psychological Association, 2020)','(American Psychological Association, 7th ed.)'], a:2,
+   why:'The author is the group, so the group’s full name goes where a person’s last name would.'},
+  {q:'Two sources back up one sentence. Which version is right?', ctx:'Several writers argue that constant online reading makes deep reading harder ___.',
+   opts:['(Wolf, 2018; Carr, 2010)','(Carr, 2010; Wolf, 2018)','(Carr, 2010, Wolf, 2018)','(Carr &amp; Wolf, 2010, 2018)'], a:1,
+   why:'List them in alphabetical order, the same order they appear on your References page, separated by a semicolon.'},
+  {q:'Where does the period go?', ctx:'',
+   opts:['…better on conceptual questions. (Mueller &amp; Oppenheimer, 2014)','…better on conceptual questions (Mueller &amp; Oppenheimer, 2014).','…better on conceptual questions (Mueller &amp; Oppenheimer, 2014)','…better on conceptual questions, (Mueller &amp; Oppenheimer, 2014).'], a:1,
+   why:'The citation belongs to the sentence, so it sits before the final period.'}
+];
+
+/* ===================== STATE ===================== */
+const S = {aura:0, correct:0, attempts:0, streak:0, best:0, round:0, startedAt:null, lessonDone:false};
+const $ = s => document.querySelector(s);
+const stage = $('#stage');
+const live = $('#live');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function say(t){live.textContent='';setTimeout(()=>live.textContent=t,30)}
+
+/* ===================== SOUND ===================== */
+let AC=null, muted=false;
+function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){} } if(AC&&AC.state==='suspended')AC.resume(); return AC; }
+function tone(f,d,type='sine',t0=0,vol=.14,slide=null){
+  const c=ac(); if(!c||muted)return;
+  const t=c.currentTime+t0, o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.setValueAtTime(f,t);
+  if(slide) o.frequency.exponentialRampToValueAtTime(slide,t+d);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.015); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t+d+.05);
+}
+const sfx={
+  good(){tone(660,.12,'triangle');tone(990,.18,'triangle',.08)},
+  bad(){tone(180,.3,'sawtooth',0,.08,90)},
+  streak(n){const base=520+Math.min(n,8)*40;[0,1,2].forEach(i=>tone(base*[1,1.25,1.5][i],.12,'square',i*.06,.06))},
+  tap(){tone(880,.05,'square',0,.04)},
+  swoosh(){tone(400,.18,'sine',0,.06,1200)},
+  tick(){tone(1400,.03,'square',0,.03)},
+  win(){[523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',i*.11,.12));tone(1047,.6,'triangle',.5,.1)},
+  start(){[392,523,659].forEach((f,i)=>tone(f,.14,'square',i*.08,.06))}
+};
+$('#muteBtn').onclick=()=>{muted=!muted;$('#muteBtn').textContent=muted?'🔇':'🔊';$('#muteBtn').setAttribute('aria-label',muted?'Unmute sound':'Mute sound');if(!muted)sfx.tap()};
+
+/* ===================== SCORE + FX ===================== */
+function award(ok, base, el){
+  S.attempts++;
+  if(ok){
+    S.correct++; S.streak++; S.best=Math.max(S.best,S.streak);
+    const mult = S.streak>=6?3:S.streak>=3?2:1;
+    const pts = base*mult;
+    S.aura+=pts; popup('+'+pts+' aura',el,false);
+    if(mult>1){sfx.streak(S.streak)}else{sfx.good()}
+    showCombo(mult);
+  } else {
+    S.streak=0; const pts=Math.min(50,S.aura); S.aura-=pts;
+    popup(pts?'−'+pts+' aura':'aura check failed',el,true); sfx.bad(); showCombo(1);
+  }
+  renderAura();
+}
+function renderAura(){
+  const el=$('#auraVal'), target=S.aura, from=+el.dataset.v||0; el.dataset.v=target;
+  if(reduceMotion){el.textContent=target.toLocaleString();return}
+  const t0=performance.now();
+  (function step(now){const p=Math.min(1,(now-t0)/400);el.textContent=Math.round(from+(target-from)*p).toLocaleString();if(p<1)requestAnimationFrame(step)})(t0);
+}
+function showCombo(m){const c=$('#combo');if(m>1){c.textContent='x'+m+' streak';c.classList.add('show')}else c.classList.remove('show')}
+function popup(text,el,neg){
+  const p=document.createElement('div');p.className='popup'+(neg?' neg':'');p.textContent=text;
+  let x=window.innerWidth/2,y=120;
+  if(el){const r=el.getBoundingClientRect();x=r.left+r.width/2;y=r.top+10}
+  p.style.left=(x-60)+'px';p.style.top=y+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),1000);
+}
+const fx=$('#fx'),fctx=fx.getContext('2d');let bits=[],fxOn=false;
+function sizeFx(){fx.width=innerWidth*devicePixelRatio;fx.height=innerHeight*devicePixelRatio}
+addEventListener('resize',sizeFx);sizeFx();
+function confetti(n=140){
+  if(reduceMotion)return;
+  const cols=['#E8256F','#3047FF','#F4FF5E','#1D1838','#3DD68C'];
+  for(let i=0;i<n;i++)bits.push({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*13-4,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.3,w:6+Math.random()*8,h:4+Math.random()*6,c:cols[i%cols.length],life:0});
+  if(!fxOn){fxOn=true;requestAnimationFrame(drawFx)}
+}
+function drawFx(){
+  const d=devicePixelRatio;fctx.setTransform(d,0,0,d,0,0);fctx.clearRect(0,0,innerWidth,innerHeight);
+  bits.forEach(b=>{b.vy+=.35;b.vx*=.99;b.x+=b.vx;b.y+=b.vy;b.r+=b.vr;b.life++;fctx.save();fctx.translate(b.x,b.y);fctx.rotate(b.r);fctx.fillStyle=b.c;fctx.fillRect(-b.w/2,-b.h/2,b.w,b.h);fctx.restore()});
+  bits=bits.filter(b=>b.y<innerHeight+40&&b.life<240);
+  if(bits.length)requestAnimationFrame(drawFx);else{fxOn=false;fctx.clearRect(0,0,innerWidth,innerHeight)}
+}
+function setRound(n){
+  S.round=n;
+  $('#rdL').className='rd'+(n==='L'?' on':S.lessonDone?' done':'');
+  for(let i=1;i<=4;i++){const r=$('#rd'+i);r.className='rd'+(typeof n==='number'&&i<n?' done':i===n?' on':'')}
+}
+function go(html){stage.innerHTML=html;window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'});const f=stage.querySelector('[data-focus]');if(f)f.focus({preventScroll:true})}
+
+/* ===================== TITLE ===================== */
+function titleScreen(){
+  setRound(0);
+  go(`<section class="title-wrap">
+    <h1 class="mega"><span class="l1">Aura Check</span><span class="l2">APA edition</span></h1>
+    <p class="sub">Learn what APA is and how to use it, then prove it in four practice rounds. Right answers stack aura, wrong ones cost you. Finish to unlock your completion card.</p>
+    <div class="stickers"><span class="sticker">Lesson + 4 rounds</span><span class="sticker">About 25 minutes</span><span class="sticker">Sound on</span><span class="sticker">Streaks multiply</span><span class="sticker">Real sources only</span></div>
+    <div class="row" style="justify-content:center"><button class="btn pink" id="startBtn" data-focus>Start the lesson</button><button class="btn alt" id="skipBtn">Skip to the practice rounds</button></div>
+  </section>`);
+  $('#startBtn').onclick=()=>{ac();sfx.start();S.startedAt=S.startedAt||new Date();lesson(0)};
+  $('#skipBtn').onclick=()=>{ac();sfx.start();S.startedAt=S.startedAt||new Date();brief1()};
+}
+
+/* ===================== LESSON ===================== */
+const PAGE_ZONES={
+  margin:'<b>Margins: 1 inch</b> on all four sides. Word’s default “Normal” margins are already 1 inch.',
+  pnum:'<b>Page number</b> in the top right corner of every page, starting with 1 on the title page. Student papers don’t need a running head.',
+  spacing:'<b>Double-space everything</b>, including the title page and the References page. Don’t add extra blank lines between paragraphs.',
+  indent:'<b>Indent the first line</b> of every paragraph 0.5 inch. Use the Tab key or the paragraph settings, not the space bar.',
+  font:'<b>Font:</b> pick one readable font and use it the whole way through. APA lists options like 12-pt Times New Roman, 11-pt Calibri, 11-pt Arial, 11-pt Georgia, and 10-pt Lucida Sans Unicode.',
+  align:'<b>Align left</b>, leaving the right edge ragged. Don’t justify the text.'
+};
+const TP_ZONES={
+  pnum:'<b>Page number 1</b>, top right. The title page counts as page 1.',
+  title:'<b>Title:</b> bold, centered, in title case, three or four lines down from the top of the page. Make it specific to your topic.',
+  name:'<b>Your name</b>, centered. Leave one blank double-spaced line between the title and your name.',
+  affil:'<b>Affiliation:</b> your department and school, written like “Department of ___, University Name.”',
+  course:'<b>Course</b> number and name, written the way your school lists it.',
+  instr:'<b>Instructor’s name</b>, in the form your instructor prefers.',
+  date:'<b>Due date</b>, written the usual way for your country, like “October 29, 2026.”'
+};
+const ANATOMY={
+  author:'<b>Author:</b> last name, comma, initials. An &amp; goes before the final author. The part ends with a period.',
+  date:'<b>Date:</b> the year in parentheses, then a period. Magazines, newspapers, and webpages add more detail, like (2008, July/August).',
+  title:'<b>Title:</b> for an article, sentence case, no italics, no quotation marks. Only the first word, the first word after a colon, and proper nouns get capitals.',
+  source:'<b>Source:</b> the journal name in title case and italics, the volume number in italics, the issue number in parentheses (not italic), and the page range.',
+  doi:'<b>DOI:</b> a Digital Object Identifier, a permanent link to the article. Write it as https://doi.org/… with no period after it.'
+};
+const SORT_ITEMS=[
+  {t:'A 2014 study found that students who typed their notes tended to copy lectures word for word.',cite:true,why:'It’s a finding from someone else’s research.'},
+  {t:'A sentence you copied word for word from a book.',cite:true,why:'Quotes always need a citation, plus a page number.'},
+  {t:'Your own opinion that phones should stay out of class.',cite:false,why:'Your own argument doesn’t need a citation. The evidence you use to support it does.'},
+  {t:'George Washington was the first president of the United States.',cite:false,why:'Common knowledge, the kind of fact you’d find in many general sources, usually doesn’t need a citation.'},
+  {t:'A statistic you found in a news article.',cite:true,why:'Numbers come from somewhere. Readers need to know where.'},
+  {t:'An idea from a website that you put into your own words.',cite:true,why:'Rewording an idea doesn’t make it yours. Paraphrases need citations too.'}
+];
+const REF_ENTRIES=[
+  {k:'carr',html:'Carr, N. (2010). <i>The shallows: What the Internet is doing to our brains</i>. W. W. Norton &amp; Company.'},
+  {k:'haidt',html:ROUND1[2].html},
+  {k:'mark',html:'Mark, G. (2023). <i>Attention span: A groundbreaking way to restore balance, happiness and productivity</i>. Hanover Square Press.'},
+  {k:'mueller',html:ROUND1[0].html},
+  {k:'sparrow',html:ROUND1[1].html}
+];
+const FINAL_QS=[
+  {q:'The authors’ names are part of your sentence. Which version is right?',opts:['Mueller &amp; Oppenheimer (2014) found…','Mueller and Oppenheimer (2014) found…'],a:1,why:'In your own sentence, write “and.” The &amp; is only for inside parentheses and in the reference entry.'},
+  {q:'Which piece goes in the reference entry but not in the in-text citation?',opts:['The author’s last name','The year','The article title'],a:2,why:'The in-text citation is just the author and year (plus a page number for quotes). The full details live on the References page.'},
+  {q:'A quote you want to use is 45 words long. How do you format it?',opts:['Inside quotation marks, like a short quote','As a block quote: its own paragraph, indented 0.5 inch, no quotation marks','Leave it out, because APA doesn’t allow long quotes'],a:1,why:'Quotes of 40 words or more become block quotes.'},
+  {q:'Where does the page number go on a student paper?',opts:['Bottom center','Top right, on every page','Top left, next to a running head'],a:1,why:'Top right, every page, starting with 1 on the title page. Student papers skip the running head.'}
+];
+function mockPage(){
+  const paras=[[91,100,97,100,88,62],[91,95,100,98,74],[91,99,94,100,46],[91,100,58]];
+  let lines='';paras.forEach(p=>p.forEach((w,k)=>lines+=`<i class="ln${k===0?' first':''}" style="width:${w}%"></i>`));
+  return `<div class="mock" id="mock"><span class="pnum">2</span><div class="mock-in">${lines}</div></div>`;
+}
+function miniMCQ(el,qs,done){
+  let i=0;
+  function show(){
+    const q=qs[i];
+    el.innerHTML=`<p class="q" style="font-size:19px">${q.q}</p><div class="opts">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}"><span class="k">${String.fromCharCode(65+k)}</span>${o}</button>`).join('')}</div><div class="mfb"></div>`;
+    el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const k=+b.dataset.k,ok=k===q.a;
+      el.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.a)x.classList.add('right');else if(j===k)x.classList.add('wrong')});
+      award(ok,50,b);
+      const last=i+1>=qs.length;
+      el.querySelector('.mfb').innerHTML=`<div class="verdict ${ok?'good':'bad'}"><h3>${ok?'Yes.':'Not quite.'}</h3><p>${q.why}</p>${last?'':'<button class="btn alt" id="mqNext">Next question</button>'}</div>`;
+      say((ok?'Yes. ':'Not quite. ')+el.querySelector('.mfb p').textContent);
+      if(last){done()}else{const n=el.querySelector('#mqNext');n.focus({preventScroll:true});n.onclick=()=>{i++;show()}}
+    });
+  }
+  show();
+}
+const LESSON=[
+{part:'What APA is',title:'What is APA, anyway?',html:()=>`
+  <p>APA Style is a rulebook from the <b>American Psychological Association</b>. It does two jobs: it tells you how to <b>format your paper</b> and how to <b>give credit to your sources</b>.</p>
+  <p>It started in 1929 as a short set of instructions in a psychology journal. Now it’s a full book, and the current version is the <b>7th edition</b> (released in 2019, dated 2020).</p>
+  <p style="margin-bottom:6px"><b>Who uses it:</b></p>
+  <div class="chips"><span class="chip">Psychology</span><span class="chip">Nursing and health sciences</span><span class="chip">Education</span><span class="chip">Business</span><span class="chip">Social sciences</span><span class="chip">Lots of college writing courses</span></div>
+  <p class="aside">Other styles exist, like MLA (common in English and the humanities) and Chicago (common in history). Same goal, different rules. Use the one your class asks for, and don’t mix them.</p>`},
+{part:'What APA is',title:'Why cite at all?',html:()=>`
+  <p>Citing isn’t busywork. Every citation does four jobs at once:</p>
+  <div class="grid2"><div class="mini"><b>Gives credit</b>Someone did the research or wrote the words. A citation says who.</div><div class="mini"><b>Backs you up</b>Citations show your claims rest on evidence, not just on your opinion.</div><div class="mini"><b>Helps readers</b>Your reference list is a map. Readers can find the exact source you used.</div><div class="mini"><b>Prevents plagiarism</b>Using someone’s words or ideas without credit is plagiarism, even by accident.</div></div>
+  <p><b>Rule of thumb:</b> if you got it from somewhere, cite it. When you’re not sure, cite.</p>`},
+{part:'What APA is',title:'Does it need a citation?',gate:true,once:true,html:()=>`<p>Decide for each one. Answer all six to move on.</p><div id="sorter"></div>`,
+ init:(el,unlock)=>{
+  const box=el.querySelector('#sorter');let answered=0;
+  box.innerHTML=SORT_ITEMS.map((it,k)=>`<div class="sort-item" data-k="${k}"><p>${it.t}</p><div class="row"><button class="btn blue" data-v="1">Needs a citation</button><button class="btn alt" data-v="0">No citation</button></div><p class="fb" hidden></p></div>`).join('');
+  box.querySelectorAll('.sort-item').forEach(row=>{
+    const it=SORT_ITEMS[+row.dataset.k];
+    row.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+      const ok=(b.dataset.v==='1')===it.cite;
+      row.querySelectorAll('button').forEach(x=>x.disabled=true);b.classList.add('picked');
+      row.classList.add(ok?'ok':'no');award(ok,40,b);
+      const fb=row.querySelector('.fb');fb.hidden=false;
+      fb.textContent=(ok?'Right. ':'Not quite. ')+(it.cite?'This needs a citation. ':'No citation needed. ')+it.why;
+      say(fb.textContent);
+      if(++answered===SORT_ITEMS.length)unlock();
+    });
+  });
+ }},
+{part:'What APA is',title:'Two parts, one system',html:()=>`
+  <p>APA citations always come in pairs:</p>
+  <div class="grid2"><div class="mini"><b>In-text citation</b>A short tag inside your sentence: the author’s last name and the year.</div><div class="mini"><b>Reference entry</b>The full details, listed on the References page at the end of your paper.</div></div>
+  <p>Tap the citation in the sentence to find its match.</p>
+  <div class="cite-box" style="margin-bottom:12px"><p class="cite" style="margin:0;padding:0;text-indent:0">Students who took notes by hand did better on conceptual questions than students who typed their notes <button class="tagbtn" id="tagA">(Mueller &amp; Oppenheimer, 2014)</button>.</p></div>
+  <div class="cite-box"><p class="cite" style="margin:0"><span id="refA">Mueller, P. A., &amp; Oppenheimer, D. M. (2014).</span> The pen is mightier than the keyboard: Advantages of longhand over laptop note taking. <i>Psychological Science, 25</i>(6), 1159–1168. https://doi.org/10.1177/0956797614524581</p></div>
+  <p class="msg" id="linkMsg" role="status"></p>`,
+ init:(el)=>{
+  el.querySelector('#tagA').onclick=()=>{
+    el.querySelector('#tagA').classList.toggle('lit');el.querySelector('#refA').classList.toggle('lit');sfx.good();
+    el.querySelector('#linkMsg').textContent='Same names, same year. That match is how a reader gets from your sentence to the full source.';
+  };
+ }},
+{part:'Format the paper',title:'Set up the page',html:()=>`
+  <p>Before you type a word, set up the document. Tap each setting to see where it shows up on the page.</p>
+  <div class="explore">${mockPage()}<div>
+    <div class="zbtns"><button class="zbtn" data-z="margin">Margins</button><button class="zbtn" data-z="pnum">Page number</button><button class="zbtn" data-z="spacing">Spacing</button><button class="zbtn" data-z="indent">Paragraph indent</button><button class="zbtn" data-z="font">Font</button><button class="zbtn" data-z="align">Alignment</button></div>
+    <div class="note" id="pnote" role="status">Pick a setting.</div></div></div>`,
+ init:(el)=>{
+  const mock=el.querySelector('#mock'),note=el.querySelector('#pnote');
+  el.querySelectorAll('.zbtn').forEach(b=>b.onclick=()=>{el.querySelectorAll('.zbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on','seen');mock.dataset.z=b.dataset.z;note.innerHTML=PAGE_ZONES[b.dataset.z];sfx.tap()});
+ }},
+{part:'Format the paper',title:'The title page',html:()=>`
+  <p>A student paper starts with a title page. Tap each part to see the rule.</p>
+  <div class="explore"><div class="mock tp"><span class="pnum hot2" data-z="pnum" tabindex="0" role="button">1</span><div class="mock-in">
+    <span class="spacer"></span>
+    <b class="hot2" data-z="title" tabindex="0" role="button">Title of Your Paper in Title Case</b>
+    <span class="blank"></span>
+    <span class="hot2" data-z="name" tabindex="0" role="button">Your Name</span>
+    <span class="hot2" data-z="affil" tabindex="0" role="button">Department of ___, University Name</span>
+    <span class="hot2" data-z="course" tabindex="0" role="button">Course Number: Course Name</span>
+    <span class="hot2" data-z="instr" tabindex="0" role="button">Instructor Name</span>
+    <span class="hot2" data-z="date" tabindex="0" role="button">Due Date</span>
+  </div></div><div><div class="note" id="tnote" role="status">Tap any part of the title page.</div>
+  <p class="aside" style="margin-top:14px">Student papers skip the running head and the abstract unless your instructor asks for them. Your instructor’s requirements always win.</p></div></div>`,
+ init:(el)=>{
+  const note=el.querySelector('#tnote');
+  el.querySelectorAll('.hot2').forEach(h=>{const act=()=>{el.querySelectorAll('.hot2').forEach(x=>x.classList.remove('lit'));h.classList.add('lit');note.innerHTML=TP_ZONES[h.dataset.z];sfx.tap()};h.onclick=act;h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}}});
+ }},
+{part:'Format the paper',title:'Headings',html:()=>`
+  <p>Longer papers use headings to break the body into sections. APA has five levels, but most class papers only need the first one or two.</p>
+  <div class="cite-box head-demo" style="margin-bottom:14px">
+    <p class="h1d">Level 1 Is Centered, Bold, Title Case</p>
+    <p class="pd">Body text starts on a new line as a normal indented paragraph.</p>
+    <p class="h2d">Level 2 Is Flush Left, Bold, Title Case</p>
+    <p class="pd">Body text starts on a new line here too.</p>
+    <p class="h3d">Level 3 Is Flush Left, Bold Italic, Title Case</p>
+    <p class="pd">And again.</p>
+  </div>
+  <p class="aside">Don’t put a heading called “Introduction” at the top of your essay. Your paper’s title, in bold and centered at the top of the first page of text, already does that job.</p>`},
+{part:'Reference entries',title:'Anatomy of a reference entry',gate:true,html:()=>`
+  <p>Every reference entry answers four questions: <b>who</b> made it, <b>when</b>, <b>what</b> it’s called, and <b>where</b> to find it. Tap all five colored parts.</p>
+  <div class="cite-box" style="margin-bottom:12px"><p class="cite" style="margin:0"><span class="part" data-p="author" tabindex="0" role="button">Mueller, P. A., &amp; Oppenheimer, D. M.</span> <span class="part" data-p="date" tabindex="0" role="button">(2014).</span> <span class="part" data-p="title" tabindex="0" role="button">The pen is mightier than the keyboard: Advantages of longhand over laptop note taking.</span> <span class="part" data-p="source" tabindex="0" role="button"><i>Psychological Science, 25</i>(6), 1159–1168.</span> <span class="part" data-p="doi" tabindex="0" role="button">https://doi.org/10.1177/0956797614524581</span></p></div>
+  <div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="found-count" id="pc">0 of 5 parts</span></div>
+  <div class="note" id="anote" role="status">Tap a part of the entry.</div>`,
+ init:(el,unlock)=>{
+  const seen=new Set(),note=el.querySelector('#anote');
+  el.querySelectorAll('.part').forEach(p=>{const act=()=>{el.querySelectorAll('.part').forEach(x=>x.classList.remove('active'));p.classList.add('active');seen.add(p.dataset.p);note.innerHTML=ANATOMY[p.dataset.p];el.querySelector('#pc').textContent=seen.size+' of 5 parts';sfx.tap();if(seen.size===5){unlock();sfx.good()}};p.onclick=act;p.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}}});
+ }},
+{part:'Reference entries',title:'Writing author names',html:()=>`
+  <p>Last name first, then initials, each followed by a period and a space (P. A.). Put a comma between authors, even when there are only two, and an &amp; before the last one.</p>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Authors</th><th>How it looks</th></tr></thead><tbody>
+    <tr><td>One</td><td class="c">Haidt, J.</td></tr>
+    <tr><td>Two</td><td class="c">Mueller, P. A., &amp; Oppenheimer, D. M.</td></tr>
+    <tr><td>Three to 20</td><td class="c">Sparrow, B., Liu, J., &amp; Wegner, D. M.</td></tr>
+    <tr><td>A group</td><td class="c">American Psychological Association.</td></tr>
+  </tbody></table></div>
+  <p class="aside">Keep the authors in the order the source lists them. Don’t alphabetize them. With 21 or more authors, list the first 19, an ellipsis (…), and then the last author.</p>`},
+{part:'Reference entries',title:'Different sources, same pattern',html:()=>`
+  <p>Author, date, title, source. The pattern stays the same. What changes is how the title and source look. Pick a source type.</p>
+  <div class="zbtns"><button class="zbtn on" data-t="j">Journal article</button><button class="zbtn" data-t="b">Book</button><button class="zbtn" data-t="w">Webpage</button></div>
+  <div id="stype"></div>`,
+ init:(el)=>{
+  const T={
+   j:`<p><b>Pattern:</b></p><div class="tpl">Author, A. A., &amp; Author, B. B. (Year). Title of the article. <i>Journal Name, Volume</i>(Issue), first page–last page. https://doi.org/xxxx</div><p><b>Real example:</b></p><div class="cite-box" style="margin-bottom:12px"><p class="cite" style="margin:0">${ROUND1[0].html}</p></div><p class="aside">No DOI? If you found the article in a library database, end the entry after the page range.</p>`,
+   b:`<p><b>Pattern:</b></p><div class="tpl">Author, A. A. (Year). <i>Title of the book: Subtitle</i> (2nd ed.). Publisher.</div><p><b>Real example:</b></p><div class="cite-box" style="margin-bottom:12px"><p class="cite" style="margin:0">${ROUND1[2].html}</p></div><p class="aside">Leave out the edition for a first edition. Don’t include the publisher’s city. If the book has a DOI, add it at the end.</p>`,
+   w:`<p><b>Pattern:</b></p><div class="tpl">Author, A. A. (Year, Month Day). <i>Title of the page</i>. Site Name. URL</div><p class="aside">No date on the page? Write (n.d.), short for “no date.” If the author and the site name are the same, leave the site name out. Organizations can be authors too.</p>`
+  };
+  const box=el.querySelector('#stype');box.innerHTML=T.j;
+  el.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{el.querySelectorAll('[data-t]').forEach(x=>x.classList.remove('on'));b.classList.add('on');box.innerHTML=T[b.dataset.t];sfx.tap()});
+ }},
+{part:'Reference entries',title:'Where to find the pieces',html:()=>`
+  <p>The information you need is almost always on the source itself. Here’s where to look:</p>
+  <div class="grid2"><div class="mini"><b>Journal article PDF</b>The first page usually lists the authors, journal name, volume, issue, pages, and DOI.</div><div class="mini"><b>Library database</b>The record page lists every piece, and many have a Cite button.</div><div class="mini"><b>Book</b>The title page has the title and authors. The copyright page, on the back of it, has the year and publisher.</div><div class="mini"><b>Webpage</b>Look for a byline, a date near the top or bottom, and the site name in the header or logo.</div></div>
+  <p class="aside">Cite buttons and citation generators are a starting point, not a finished product. They often get capital letters, italics, or DOIs wrong, so check every entry against the rules you just learned.</p>`},
+{part:'Reference entries',title:'The References page',gate:true,html:()=>`
+  <p>All your entries go on their own page at the end of the paper, titled <b>References</b> in bold and centered. This draft isn’t finished yet. Apply all three fixes.</p>
+  <div class="row" style="margin-bottom:12px"><button class="btn alt" data-fix="sorted">Sort A to Z</button><button class="btn alt" data-fix="hang">Add hanging indent</button><button class="btn alt" data-fix="dbl">Double-space</button></div>
+  <div id="refList"></div>
+  <div class="note" id="refMsg" role="status">Pick a fix.</div>`,
+ init:(el,unlock)=>{
+  const st={sorted:false,hang:false,dbl:false},order=['sparrow','haidt','mueller','carr','mark'],list=el.querySelector('#refList');
+  const msgs={sorted:'Alphabetical by the first author’s last name: Carr, Haidt, Mark, Mueller, Sparrow.',hang:'Hanging indent: the first line sits at the margin and every line after it is indented 0.5 inch. In Word, open Paragraph settings and choose Special: Hanging.',dbl:'Double-spaced, same as the rest of the paper, with no extra blank lines between entries.'};
+  function draw(){const keys=st.sorted?REF_ENTRIES.map(e=>e.k):order;list.className='ref-demo'+(st.hang?' hang':'')+(st.dbl?' dbl':'');list.innerHTML='<p class="ref-h">References</p>'+keys.map(k=>`<p class="ref-e">${REF_ENTRIES.find(e=>e.k===k).html}</p>`).join('')}
+  draw();
+  el.querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>{const k=b.dataset.fix;if(st[k])return;st[k]=true;b.disabled=true;b.classList.add('picked');draw();sfx.good();el.querySelector('#refMsg').textContent=msgs[k];if(st.sorted&&st.hang&&st.dbl){unlock();confetti(50)}});
+ }},
+{part:'In-text citations',title:'Two ways to cite in a sentence',html:()=>`
+  <p>Every time you use a source in your paper, you cite it right there in the sentence. You can do it two ways. Switch between them.</p>
+  <div class="zbtns"><button class="zbtn on" data-m="paren">Parenthetical</button><button class="zbtn" data-m="narr">Narrative</button></div>
+  <div class="cite-box" style="margin-bottom:12px"><p class="cite" id="itS" style="margin:0;padding:0;text-indent:0"></p></div>
+  <div class="note" id="itN" role="status"></div>`,
+ init:(el)=>{
+  const M={paren:['Students who typed their notes tended to copy lectures word for word <mark>(Mueller &amp; Oppenheimer, 2014)</mark>.','<b>Parenthetical:</b> names and year go in parentheses at the end of the idea, before the period. Inside parentheses, use &amp;.'],
+   narr:['<mark>Mueller and Oppenheimer (2014)</mark> found that students who typed their notes tended to copy lectures word for word.','<b>Narrative:</b> the authors are part of your sentence, so write “and.” The year goes in parentheses right after the names.']};
+  const set=m=>{el.querySelector('#itS').innerHTML=M[m][0];el.querySelector('#itN').innerHTML=M[m][1]};set('paren');
+  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{el.querySelectorAll('[data-m]').forEach(x=>x.classList.remove('on'));b.classList.add('on');set(b.dataset.m);sfx.tap()});
+ }},
+{part:'In-text citations',title:'How many authors?',html:()=>`
+  <p>The number of authors changes how the in-text citation looks.</p>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Authors</th><th>Parenthetical</th><th>Narrative</th></tr></thead><tbody>
+    <tr><td>One</td><td class="c">(Haidt, 2024)</td><td class="c">Haidt (2024)</td></tr>
+    <tr><td>Two</td><td class="c">(Mueller &amp; Oppenheimer, 2014)</td><td class="c">Mueller and Oppenheimer (2014)</td></tr>
+    <tr><td>Three or more</td><td class="c">(Sparrow et al., 2011)</td><td class="c">Sparrow et al. (2011)</td></tr>
+    <tr><td>A group</td><td class="c">(American Psychological Association, 2020)</td><td class="c">American Psychological Association (2020)</td></tr>
+  </tbody></table></div>
+  <p class="aside">“Et al.” means “and others.” Use it for three or more authors from the very first citation. No date on the source? Write (Author, n.d.).</p>`},
+{part:'In-text citations',title:'Quoting vs. paraphrasing',html:()=>`
+  <p>How you use a source changes what the citation needs.</p>
+  <div class="grid2"><div class="mini"><b>Short quote</b>Under 40 words. Use quotation marks and add a page number: (Author, Year, p. #). Use pp. for a page range, or para. # when there are no page numbers.</div><div class="mini"><b>Long quote</b>40 words or more. Make it a block quote: its own paragraph, indented 0.5 inch, no quotation marks. The citation goes after the final period.</div><div class="mini"><b>Paraphrase</b>The idea in your own words and your own sentence structure. Cite the author and year. A page number is encouraged but not required.</div><div class="mini"><b>Which to use?</b>Paraphrase most of the time. Save quotes for wording that’s too memorable or too precise to change.</div></div>`},
+{part:'Lesson check',title:'Quick check',gate:true,once:true,html:()=>`<p>Four questions, then you’re into the practice rounds.</p><div id="fcq"></div>`,
+ init:(el,unlock)=>{miniMCQ(el.querySelector('#fcq'),FINAL_QS,unlock)}}
+];
+function lesson(i){
+  setRound('L');document.onkeydown=null;
+  const s=LESSON[i],n=LESSON.length;
+  go(`<div class="lprog"><span class="lpart">${s.part}</span><div class="lbar"><i style="width:${(i+1)/n*100}%"></i></div><span class="lpart">${i+1} of ${n}</span></div>
+    <section class="panel slide"><h2 tabindex="-1" data-focus>${s.title}</h2><div id="sbody">${s.html()}</div>
+    <div class="lnav"><button class="btn alt" id="lBack">${i?'Back':'Title screen'}</button><button class="btn ${i===n-1?'pink':''}" id="lNext">${i===n-1?'Finish the lesson':'Next'}</button></div></section>`);
+  const next=$('#lNext');
+  if(s.once&&s._done){
+    $('#sbody').innerHTML='<div class="verdict good"><h3>Already cleared.</h3><p>You finished this check. Keep going.</p></div>';
+  } else {
+    if(s.gate&&!s._done)next.disabled=true;
+    if(s.init)s.init($('#sbody'),()=>{s._done=true;next.disabled=false;say('Next is unlocked.')});
+  }
+  $('#lBack').onclick=()=>{sfx.tap();i?lesson(i-1):titleScreen()};
+  next.onclick=()=>{sfx.tap();i<n-1?lesson(i+1):lessonDone()};
+}
+function lessonDone(){
+  S.lessonDone=true;sfx.win();confetti();setRound('L');$('#rdL').className='rd done';
+  go(`<section class="panel brief" style="text-align:center">
+    <p class="kicker">Lesson complete</p>
+    <h2>Now prove it.</h2>
+    <p class="lede" style="margin-top:10px">You’ve covered what APA is, how to set up the paper, how to build reference entries, and how to cite in your sentences. Four practice rounds are next. Running total: <b>${S.aura.toLocaleString()} aura</b>.</p>
+    <button class="btn pink" id="goNext" data-focus>Start round 1</button>
+  </section>`);
+  $('#goNext').onclick=()=>{sfx.tap();brief1()};
+}
+
+/* ===================== ROUND 1 ===================== */
+function brief1(){
+  setRound(1);
+  go(`<section class="panel brief">
+    <p class="kicker">Round 1 of 4</p>
+    <h2>Valid or sus</h2>
+    <p class="lede">A reference entry has four parts, always in this order:</p>
+    <div class="anatomy"><span>Author.</span><span>(Date).</span><span>Title.</span><span>Source.</span></div>
+    <ul class="rules">
+      <li><b>Authors:</b> last name, then initials. Use &amp; before the final author.</li>
+      <li><b>Titles:</b> sentence case, so only the first word, the first word after a colon, and proper nouns get capitals.</li>
+      <li><b>Italics:</b> book titles, journal names, and journal volume numbers.</li>
+      <li><b>DOIs</b> are written as links: https://doi.org/… No city for publishers.</li>
+    </ul>
+    <p>Swipe right (or press →) if the entry is valid. Swipe left (or press ←) if something’s sus.</p>
+    <button class="btn" id="go1" data-focus>Deal the cards</button>
+  </section>`);
+  $('#go1').onclick=()=>{sfx.tap();round1()};
+}
+function round1(){
+  const cards=shuffle(ROUND1);let i=0,locked=false;
+  function show(){
+    if(i>=cards.length)return roundDone(1,brief2);
+    locked=false;const c=cards[i];
+    go(`<div class="counter">Card ${i+1} of ${cards.length}</div>
+      <div class="deck"><div class="swipe" id="card" tabindex="0" aria-label="Reference entry. Press right arrow for valid, left arrow for sus.">
+        <span class="tag s">SUS</span><span class="tag v">VALID</span>
+        <div class="cite-box"><p class="cite" style="margin:0">${c.html}</p></div>
+      </div></div>
+      <div class="choices" id="choices"><button class="btn alt" id="susBtn">← Sus</button><button class="btn blue" id="valBtn">Valid →</button></div>
+      <div id="vd"></div>`);
+    $('#card').focus({preventScroll:true});
+    $('#susBtn').onclick=()=>decide(false);
+    $('#valBtn').onclick=()=>decide(true);
+    drag($('#card'));
+  }
+  function drag(card){
+    let sx=0,dx=0,down=false;
+    const tv=card.querySelector('.tag.v'),ts=card.querySelector('.tag.s');
+    card.addEventListener('pointerdown',e=>{if(locked)return;down=true;sx=e.clientX;dx=0;card.classList.add('dragging');card.setPointerCapture(e.pointerId)});
+    card.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;card.style.transform=`translateX(${dx}px) rotate(${dx/20}deg)`;tv.style.opacity=Math.max(0,dx/120);ts.style.opacity=Math.max(0,-dx/120)});
+    const up=()=>{if(!down)return;down=false;card.classList.remove('dragging');
+      if(Math.abs(dx)>100){decide(dx>0)}else{card.style.transition='transform .2s';card.style.transform='';tv.style.opacity=0;ts.style.opacity=0;setTimeout(()=>card.style.transition='',200)}};
+    card.addEventListener('pointerup',up);card.addEventListener('pointercancel',up);
+  }
+  function decide(saidValid){
+    if(locked)return;locked=true;
+    const c=cards[i],ok=saidValid===c.valid,card=$('#card');
+    sfx.swoosh();
+    card.querySelector(saidValid?'.tag.v':'.tag.s').style.opacity=1;
+    award(ok,100,card);
+    $('#choices').style.display='none';
+    const title=ok?(c.valid?'Valid. You’re right.':'Sus. Good catch.'):(c.valid?'Actually, this one was valid.':'Missed it. This one was sus.');
+    $('#vd').innerHTML=`<div class="verdict ${ok?'good':'bad'}"><h3>${title}</h3><p>${c.why}</p><button class="btn" id="nextBtn">Next card</button></div>`;
+    say(title+' '+$('#vd p').textContent);
+    $('#nextBtn').focus({preventScroll:true});
+    $('#nextBtn').onclick=()=>{card.classList.add(saidValid?'fly-right':'fly-left');setTimeout(()=>{i++;show()},reduceMotion?0:300)};
+  }
+  document.onkeydown=e=>{
+    if(!$('#card'))return;
+    if(!locked&&e.key==='ArrowRight'){e.preventDefault();decide(true)}
+    else if(!locked&&e.key==='ArrowLeft'){e.preventDefault();decide(false)}
+  };
+  show();
+}
+
+/* ===================== ROUND 2 ===================== */
+function brief2(){
+  setRound(2);document.onkeydown=null;
+  go(`<section class="panel brief">
+    <p class="kicker">Round 2 of 4</p>
+    <h2>Build the reference</h2>
+    <p class="lede">Each pile has the pieces of one real reference, plus one piece that doesn’t belong.</p>
+    <ul class="rules">
+      <li><b>Tap the pieces in order:</b> author, date, title, source, then DOI if there is one.</li>
+      <li><b>One piece is a trap.</b> Tap it and you lose aura. Leave it in the pile.</li>
+      <li><b>Journal articles</b> end with the journal, volume, issue, pages, and DOI. <b>Books</b> end with the publisher.</li>
+    </ul>
+    <button class="btn" id="go2" data-focus>Open the first pile</button>
+  </section>`);
+  $('#go2').onclick=()=>{sfx.tap();round2()};
+}
+function round2(){
+  let r=0;
+  function show(){
+    if(r>=ROUND2.length)return roundDone(2,brief3);
+    const it=ROUND2[r];let step=0;
+    const pool=shuffle([...it.parts.map((p,idx)=>({...p,idx})),...it.decoys.map(d=>({...d,idx:-1}))]);
+    go(`<div class="counter">Pile ${r+1} of ${ROUND2.length}: ${it.label}</div>
+      <div class="order-hint" id="hint">${it.parts.map((p,k)=>`<span data-k="${k}">${p.k}</span>`).join('')}</div>
+      <div class="slots" id="slots"><p class="cite" style="margin:0" id="built"><span class="ph">Tap the first piece below.</span></p></div>
+      <div class="tiles" id="tiles">${pool.map((p,k)=>`<button class="tile" data-i="${k}">${p.t}</button>`).join('')}</div>
+      <div id="vd"></div>`);
+    const built=$('#built');
+    function hint(){document.querySelectorAll('#hint span').forEach((s,k)=>s.className=k<step?'done':k===step?'now':'')}
+    hint();
+    document.querySelectorAll('.tile').forEach(btn=>btn.onclick=()=>{
+      const p=pool[+btn.dataset.i];
+      if(p.idx===step){
+        if(step===0)built.innerHTML='';
+        built.insertAdjacentHTML('beforeend',(step?' ':'')+`<span class="pc">${p.t}</span>`);
+        btn.classList.add('used');btn.disabled=true;step++;hint();award(true,60,btn);
+        $('#vd').innerHTML='';
+        if(step===it.parts.length){
+          document.querySelectorAll('.tile').forEach(b=>b.disabled=true);
+          confetti(60);
+          $('#vd').innerHTML=`<div class="verdict good"><h3>Built clean.</h3><p>That’s the full ${it.label.toLowerCase()} reference in APA 7.</p><button class="btn" id="nextBtn">${r+1<ROUND2.length?'Next pile':'Finish round'}</button></div>`;
+          $('#nextBtn').focus({preventScroll:true});$('#nextBtn').onclick=()=>{r++;show()};
+        }
+      } else {
+        award(false,0,btn);btn.classList.remove('shake');void btn.offsetWidth;btn.classList.add('shake');
+        const msg=p.idx===-1?p.why:`Not yet. The next piece is the ${it.parts[step].k.toLowerCase()}.`;
+        $('#vd').innerHTML=`<div class="verdict bad"><h3>${p.idx===-1?'That’s the trap.':'Wrong order.'}</h3><p>${msg}</p></div>`;
+        say(msg);
+      }
+    });
+  }
+  show();
+}
+
+/* ===================== ROUND 3 ===================== */
+function brief3(){
+  setRound(3);
+  go(`<section class="panel brief">
+    <p class="kicker">Round 3 of 4</p>
+    <h2>Spot the glitches</h2>
+    <p class="lede">This References page from a student paper has ${ROUND3_GLITCHES} formatting errors. Tap each one.</p>
+    <ul class="rules">
+      <li><b>The heading</b> is “References,” bold and centered.</li>
+      <li><b>Page numbers</b> go in the top right corner of every page.</li>
+      <li><b>Entries</b> are alphabetical by first author, double-spaced, with a 0.5-inch hanging indent (first line flush left, the rest indented).</li>
+      <li><b>Each entry</b> follows the rules from rounds 1 and 2.</li>
+    </ul>
+    <p>Tapping something that’s actually correct costs aura.</p>
+    <button class="btn" id="go3" data-focus>Show the page</button>
+  </section>`);
+  $('#go3').onclick=()=>{sfx.tap();round3()};
+}
+function round3(){
+  const spots={
+    head:{bad:true,why:'This is MLA’s heading. APA calls the page “References,” in bold, centered.'},
+    pnum:{bad:true,why:'Page numbers go in the top right corner, not at the bottom.'},
+    carr:{bad:true,why:'“New York, NY:” is a publisher location. APA 7 drops it.'},
+    mark:{bad:true,why:'This entry has a first-line indent. APA uses a hanging indent: first line flush left, the rest indented 0.5 inch.'},
+    mueller:{bad:true,why:'“doi:10.1177/…” is the old style. Write it as https://doi.org/10.1177/0956797614524581.'},
+    haidt:{bad:false,why:'This entry is correct. Italic sentence-case title, publisher, hanging indent.'},
+    sparrow:{bad:false,why:'This entry is correct. Three authors, &amp; before the last, DOI as a link.'}
+  };
+  let found=0;
+  go(`<div class="row" style="justify-content:space-between"><div class="counter" style="margin:0">Tap each formatting error.</div><div class="found-count" id="fc">0 / ${ROUND3_GLITCHES} found</div></div>
+    <div class="page-wrap"><div class="page" id="page">
+      <span class="hot p-num" data-s="pnum">9</span>
+      <p class="p-head"><span class="hot" data-s="head">Works Cited</span></p>
+      <span class="entry hot" data-s="carr">Carr, N. (2010). <i>The shallows: What the Internet is doing to our brains</i>. New York, NY: W. W. Norton &amp; Company.</span>
+      <span class="entry hot" data-s="haidt">Haidt, J. (2024). <i>The anxious generation: How the great rewiring of childhood is causing an epidemic of mental illness</i>. Penguin Press.</span>
+      <span class="entry bad-indent hot" data-s="mark">Mark, G. (2023). <i>Attention span: A groundbreaking way to restore balance, happiness and productivity</i>. Hanover Square Press.</span>
+      <span class="entry hot" data-s="mueller">Mueller, P. A., &amp; Oppenheimer, D. M. (2014). The pen is mightier than the keyboard: Advantages of longhand over laptop note taking. <i>Psychological Science, 25</i>(6), 1159–1168. doi:10.1177/0956797614524581</span>
+      <span class="entry hot" data-s="sparrow">Sparrow, B., Liu, J., &amp; Wegner, D. M. (2011). Google effects on memory: Cognitive consequences of having information at our fingertips. <i>Science, 333</i>(6043), 776–778. https://doi.org/10.1126/science.1207745</span>
+    </div></div>
+    <div class="note" id="note">Tap anything on the page that breaks APA format.</div>
+    <div id="vd"></div>`);
+  document.querySelectorAll('.hot').forEach(h=>{
+    h.setAttribute('role','button');h.tabIndex=0;
+    const act=()=>{
+      const key=h.dataset.s,s=spots[key];
+      if(h.classList.contains('found')||h.classList.contains('cleared'))return;
+      const note=$('#note');
+      if(s.bad){
+        h.classList.add('found');found++;award(true,120,h);
+        note.className='note good';note.innerHTML='<b>Glitch found.</b> '+s.why;
+        $('#fc').textContent=found+' / '+ROUND3_GLITCHES+' found';
+        if(found===ROUND3_GLITCHES){
+          confetti(80);
+          $('#vd').innerHTML=`<div class="verdict good" style="margin-top:14px"><h3>Page fixed.</h3><p>You caught every glitch. One more thing worth knowing: in a student paper, the References page starts on its own new page, after the last page of your essay.</p><button class="btn" id="nextBtn">Finish round</button></div>`;
+          $('#nextBtn').focus({preventScroll:true});$('#nextBtn').onclick=()=>roundDone(3,brief4);
+        }
+      } else {
+        h.classList.add('cleared');award(false,0,h);
+        note.className='note bad';note.innerHTML='<b>Not a glitch.</b> '+s.why;
+      }
+      say(note.textContent);
+    };
+    h.onclick=act;h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}};
+  });
+}
+
+/* ===================== ROUND 4 ===================== */
+function brief4(){
+  setRound(4);
+  go(`<section class="panel brief">
+    <p class="kicker">Round 4 of 4</p>
+    <h2>In-text speedrun</h2>
+    <p class="lede">Every source in your paper gets cited in your sentences too. Each question has a 15-second timer, and fast answers earn bonus aura.</p>
+    <ul class="rules">
+      <li><b>Parenthetical:</b> (Author, Year). Two authors: (Mueller &amp; Oppenheimer, 2014).</li>
+      <li><b>Narrative:</b> the names are part of your sentence. Mueller and Oppenheimer (2014) found…</li>
+      <li><b>Three or more authors:</b> use “et al.” every time, starting with the first citation.</li>
+      <li><b>Direct quotes</b> add a page number: (Author, Year, p. #).</li>
+    </ul>
+    <p>Press 1–4 on a keyboard to answer faster.</p>
+    <button class="btn" id="go4" data-focus>Start the timer</button>
+  </section>`);
+  $('#go4').onclick=()=>{sfx.tap();round4()};
+}
+function round4(){
+  const qs=shuffle(ROUND4);let i=0,raf=null,locked=false;const LIMIT=15000;
+  function show(){
+    if(i>=qs.length){document.onkeydown=null;return roundDone(4,endScreen)}
+    locked=false;const q=qs[i];
+    go(`<div class="counter">Question ${i+1} of ${qs.length}</div>
+      <div class="timer" id="tm"><i id="tb"></i></div>
+      <p class="q">${q.q}</p>
+      ${q.ctx?`<div class="ctx">${q.ctx}</div>`:''}
+      <div class="opts">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}"><span class="k">${k+1}</span>${o}</button>`).join('')}</div>
+      <div id="vd"></div>`);
+    document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.k,b));
+    const t0=performance.now();let lastTick=99;
+    cancelAnimationFrame(raf);
+    (function loop(now){
+      if(locked)return;
+      const left=Math.max(0,LIMIT-(now-t0));
+      $('#tb').style.width=(left/LIMIT*100)+'%';
+      const sec=Math.ceil(left/1000);
+      if(sec<=5){$('#tm').classList.add('low');if(sec<lastTick){lastTick=sec;if(sec>0)sfx.tick()}}
+      if(left<=0)return answer(-1,null);
+      q._left=left;raf=requestAnimationFrame(loop);
+    })(t0);
+  }
+  function answer(k,btn){
+    if(locked)return;locked=true;cancelAnimationFrame(raf);
+    const q=qs[i],ok=k===q.a;
+    document.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add('right');else if(j===k)b.classList.add('wrong')});
+    const bonus=ok?Math.round(50*(q._left||0)/LIMIT):0;
+    award(ok,100+bonus,btn||$('#tm'));
+    const title=k===-1?'Time’s up.':ok?(bonus>=35?'Speedrun pace.':'Correct.'):'Not that one.';
+    $('#vd').innerHTML=`<div class="verdict ${ok?'good':'bad'}"><h3>${title}</h3><p>${q.why}</p><button class="btn" id="nextBtn">${i+1<qs.length?'Next question':'See results'}</button></div>`;
+    say(title+' '+$('#vd p').textContent);
+    $('#nextBtn').focus({preventScroll:true});$('#nextBtn').onclick=()=>{i++;show()};
+  }
+  document.onkeydown=e=>{if(!locked&&/^[1-4]$/.test(e.key)){const b=document.querySelector(`.opt[data-k="${+e.key-1}"]`);if(b)b.click()}};
+  show();
+}
+
+/* ===================== ROUND TRANSITIONS ===================== */
+function roundDone(n,next){
+  sfx.win();confetti();
+  $('#rd'+n).className='rd done';
+  const lines=['Your reference entries are looking clean.','You can build a reference from scratch now.','That References page is ready to turn in.','In-text citations: handled.'];
+  go(`<section class="panel brief" style="text-align:center">
+    <p class="kicker">Round ${n} cleared</p>
+    <h2>${['','Cards sorted.','Piles built.','Glitches patched.','Speedrun done.'][n]}</h2>
+    <p class="lede" style="margin-top:10px">${lines[n-1]} Running total: <b>${S.aura.toLocaleString()} aura</b>, best streak ${S.best}.</p>
+    <button class="btn pink" id="goNext" data-focus>${n<4?'Next round':'Get my results'}</button>
+  </section>`);
+  $('#goNext').onclick=()=>{sfx.tap();next()};
+}
+
+/* ===================== END + CERTIFICATE ===================== */
+function rankFor(acc){
+  if(acc>=90)return 'APA main character';
+  if(acc>=75)return 'Citation certified';
+  if(acc>=60)return 'Solid, keep practicing';
+  return 'Respawn recommended';
+}
+function code(str){let h=5381;for(const c of str)h=((h<<5)+h+c.charCodeAt(0))>>>0;return 'APA-'+h.toString(36).toUpperCase().padStart(7,'0').slice(-7)}
+function endScreen(){
+  setRound(5);
+  const acc=S.attempts?Math.round(S.correct/S.attempts*100):0;
+  const rank=rankFor(acc);
+  const date=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  go(`<section class="panel end">
+    <p class="kicker">All four rounds complete</p>
+    <h2>You passed the aura check.</h2>
+    <div class="rank">${rank}</div>
+    <div class="stats">
+      <div class="stat"><b>${S.aura.toLocaleString()}</b><span>aura</span></div>
+      <div class="stat"><b>${acc}%</b><span>accuracy</span></div>
+      <div class="stat"><b>${S.best}</b><span>best streak</span></div>
+    </div>
+    <label for="nm">Your name for the completion card</label>
+    <input type="text" id="nm" maxlength="40" autocomplete="name" placeholder="First and last name">
+    <canvas id="certCanvas" width="1200" height="760" aria-label="Completion card preview"></canvas>
+    <div class="row">
+      <button class="btn pink" id="sendBtn">Send score to instructor</button>
+      <button class="btn" id="dlBtn">Download card (PNG)</button>
+      <button class="btn blue" id="cpBtn">Copy completion text</button>
+      <button class="btn alt" id="againBtn">Play again</button>
+    </div>
+    <p class="msg" id="msg" role="status"></p>
+    <p id="formLink" hidden></p>
+    <label for="txt" style="margin-top:10px">Completion text</label>
+    <textarea id="txt" rows="7" readonly></textarea>
+  </section>`);
+  confetti(200);
+  const nm=$('#nm');nm.focus({preventScroll:true});
+  const data=()=>{const name=nm.value.trim()||'Student';return{name,acc,rank,date,aura:S.aura,best:S.best,code:code(name+'|'+S.aura+'|'+acc+'|'+date+'|'+S.correct+'/'+S.attempts)}};
+  const refresh=()=>{const d=data();drawCert(d);$('#txt').value=certText(d)};
+  nm.oninput=refresh;
+  (document.fonts?document.fonts.ready:Promise.resolve()).then(refresh);refresh();
+  $('#cpBtn').onclick=()=>{if(!nm.value.trim()){needName();return}copyText($('#txt').value)};
+  $('#dlBtn').onclick=()=>{if(!nm.value.trim()){needName();return}downloadCert(data())};
+  if(!parseForm())$('#sendBtn').hidden=true;
+  $('#sendBtn').onclick=()=>{if(!nm.value.trim()){needName();return}submitScore(data())};
+  $('#againBtn').onclick=()=>{Object.assign(S,{aura:0,correct:0,attempts:0,streak:0,best:0,lessonDone:false});LESSON.forEach(s=>s._done=false);renderAura();showCombo(1);titleScreen()};
+  function needName(){$('#msg').textContent='Add your name first so the card shows who completed it.';nm.focus();sfx.bad()}
+}
+function certText(d){
+  return `✅ Completed: Aura Check, APA Edition (APA 7 citation and format)
+Name: ${d.name}
+Aura: ${d.aura.toLocaleString()}
+Accuracy: ${d.acc}% (${S.correct} of ${S.attempts} correct)
+Best streak: ${d.best}
+Lesson: ${S.lessonDone?'completed':'skipped'}
+Rank: ${d.rank}
+Date: ${d.date}
+Completion code: ${d.code}`;
+}
+function drawCert(d){
+  const c=$('#certCanvas'),x=c.getContext('2d'),W=c.width,H=c.height;
+  x.clearRect(0,0,W,H);
+  x.fillStyle='#EEE9FF';x.fillRect(0,0,W,H);
+  x.fillStyle='#CFC6F5';for(let i=0;i<W;i+=26)for(let j=0;j<H;j+=26){x.beginPath();x.arc(i,j,1.6,0,7);x.fill()}
+  // card
+  x.fillStyle='#1D1838';rr(x,58,58,W-100,H-100,34);x.fill();
+  x.fillStyle='#FFFFFF';rr(x,48,48,W-100,H-100,34);x.fill();
+  x.lineWidth=5;x.strokeStyle='#1D1838';rr(x,48,48,W-100,H-100,34);x.stroke();
+  // sticker title
+  x.save();x.translate(110,128);x.rotate(-.035);
+  x.fillStyle='#E8256F';rr(x,0,0,430,86,18);x.fill();x.lineWidth=4;x.stroke();
+  x.fillStyle='#fff';x.font='800 50px "Bricolage Grotesque", Arial Black, sans-serif';x.fillText('APA edition',26,60);x.restore();
+  x.fillStyle='#1D1838';x.font='800 64px "Bricolage Grotesque", Arial Black, sans-serif';x.fillText('Aura Check',110,112);
+  x.font='400 26px "Atkinson Hyperlegible", Arial, sans-serif';x.fillStyle='#5B5580';
+  x.fillText(S.lessonDone?'Completed the APA 7 lesson and all four practice rounds':'Completed all four practice rounds (lesson skipped)',110,262);
+  x.fillStyle='#1D1838';x.font='800 72px "Bricolage Grotesque", Arial Black, sans-serif';
+  fitText(x,d.name,110,355,W-260,72);
+  // rank pill
+  x.font='800 32px "Bricolage Grotesque", Arial Black, sans-serif';
+  const rw=x.measureText(d.rank).width+44;
+  x.fillStyle='#F4FF5E';rr(x,110,392,rw,58,14);x.fill();x.lineWidth=4;x.strokeStyle='#1D1838';x.stroke();
+  x.fillStyle='#1D1838';x.fillText(d.rank,132,432);
+  // stats
+  const st=[[d.aura.toLocaleString(),'aura'],[d.acc+'%','accuracy'],[String(d.best),'best streak']];
+  st.forEach((s,k)=>{const bx=110+k*250;x.fillStyle='#EEE9FF';rr(x,bx,488,226,112,16);x.fill();x.lineWidth=3;x.stroke();
+    x.fillStyle='#1D1838';x.font='800 44px "Bricolage Grotesque", Arial Black, sans-serif';x.fillText(s[0],bx+20,544);
+    x.font='400 22px "Atkinson Hyperlegible", Arial, sans-serif';x.fillStyle='#5B5580';x.fillText(s[1],bx+20,580)});
+  x.font='700 22px "Atkinson Hyperlegible", Arial, sans-serif';x.fillStyle='#1D1838';
+  x.fillText(d.date,110,656);
+  x.textAlign='right';x.fillText('Code '+d.code,W-110,656);x.textAlign='left';
+  // badge
+  x.save();x.translate(W-210,250);x.rotate(.12);
+  x.fillStyle='#3047FF';x.beginPath();for(let k=0;k<24;k++){const a=k/24*Math.PI*2,r=k%2?78:92;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fill();x.lineWidth=4;x.strokeStyle='#1D1838';x.stroke();
+  x.fillStyle='#fff';x.textAlign='center';x.font='800 30px "Bricolage Grotesque", Arial Black, sans-serif';x.fillText('APA 7',0,-4);
+  x.font='700 20px "Atkinson Hyperlegible", Arial, sans-serif';x.fillText('complete',0,24);x.restore();x.textAlign='left';
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function fitText(x,t,a,b,max,size){let s=size;do{x.font=`800 ${s}px "Bricolage Grotesque", Arial Black, sans-serif`;s-=2}while(x.measureText(t).width>max&&s>24);x.fillText(t,a,b)}
+
+let dlNS;
+function getDownloads(){
+  if(dlNS!==undefined)return Promise.resolve(dlNS);
+  if(!window.claude||typeof window.claude.use!=='function'){dlNS=null;return Promise.resolve(null)}
+  return window.claude.use('downloads').then(n=>(dlNS=n)).catch(()=>(dlNS=null));
+}
+setTimeout(()=>{getDownloads()},0);
+function downloadCert(d){
+  const msg=$('#msg');msg.textContent='Preparing your card…';
+  const fname='aura-check-apa-'+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png';
+  $('#certCanvas').toBlob(async blob=>{
+    if(!blob){msg.textContent='The card couldn’t be generated. Use the copy button instead.';return}
+    const ns=await getDownloads();
+    if(ns){
+      try{await ns.save({filename:fname,data:blob});msg.textContent='Card saved.';sfx.good()}
+      catch(e){msg.textContent=e&&e.code==='declined'?'Download canceled.':'Downloads aren’t available here. Use the copy button instead.'}
+      return;
+    }
+    try{const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);msg.textContent='Card downloaded.';sfx.good()}
+    catch(e){msg.textContent='Downloads aren’t available here. Use the copy button instead.'}
+  },'image/png');
+}
+function parseForm(){
+  if(!FORM_PREFILL_URL)return null;
+  try{
+    const u=new URL(FORM_PREFILL_URL);
+    const m=u.pathname.match(/\/forms\/d\/e\/([^/]+)\//);
+    if(!m)return null;
+    const map={};
+    const alias={'BEST STREAK':'STREAK','COMPLETION CODE':'CODE'};
+    u.searchParams.forEach((v,k)=>{if(k.startsWith('entry.')){const key=v.trim().toUpperCase();map[alias[key]||key]=k}});
+    if(!Object.keys(map).length)return null;
+    return {action:`https://docs.google.com/forms/d/e/${m[1]}/formResponse`,view:`https://docs.google.com/forms/d/e/${m[1]}/viewform`,map};
+  }catch(e){return null}
+}
+async function submitScore(d){
+  const f=parseForm(),msg=$('#msg'),link=$('#formLink'),btn=$('#sendBtn');
+  if(!f){msg.textContent='Score sending isn’t set up. Download your card instead.';return}
+  const vals={NAME:d.name,AURA:String(d.aura),ACCURACY:`${d.acc}% (${S.correct} of ${S.attempts})`,STREAK:String(d.best),RANK:d.rank,LESSON:S.lessonDone?'completed':'skipped',CODE:d.code};
+  const body=new URLSearchParams(),q=new URLSearchParams();
+  for(const [key,entry] of Object.entries(f.map)){if(vals[key]!=null){body.append(entry,vals[key]);q.append(entry,vals[key])}}
+  const prefill=f.view+'?usp=pp_url&'+q.toString();
+  btn.disabled=true;msg.textContent='Sending your score…';
+  try{
+    await fetch(f.action,{method:'POST',mode:'no-cors',body});
+    msg.textContent='Score sent to your instructor.';sfx.win();confetti(80);
+    link.hidden=false;link.innerHTML=`Want a backup? <a href="${prefill}" target="_blank" rel="noopener">Open the form</a> and press Submit.`;
+  }catch(e){
+    btn.disabled=false;
+    msg.textContent='Your score couldn’t send automatically. Open the form below, check your info, and press Submit.';
+    link.hidden=false;link.innerHTML=`<a class="btn blue" style="display:inline-block;text-decoration:none" href="${prefill}" target="_blank" rel="noopener">Open the score form</a>`;
+  }
+}
+async function copyText(t){
+  const msg=$('#msg');
+  try{await navigator.clipboard.writeText(t);msg.textContent='Copied. Paste it into your Canvas submission.';sfx.good();return}catch(e){}
+  const ta=$('#txt');ta.focus();ta.select();
+  try{if(document.execCommand('copy')){msg.textContent='Copied. Paste it into your Canvas submission.';sfx.good();return}}catch(e){}
+  msg.textContent='Copy didn’t work automatically. The text below is selected, so press Ctrl+C (or ⌘+C).';
+}
+
+titleScreen();
+</script>
+</body>
+</html>
